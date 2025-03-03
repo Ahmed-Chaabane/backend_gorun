@@ -4,9 +4,10 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 passport.use(
     new GoogleStrategy(
         {
-            clientID: '358465763062-0isj5g1km6p4nr01atoj1hagftotd1v7.apps.googleusercontent.com', // Utilisation des variables d'environnement
-            clientSecret: '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',
+            clientID: process.env.GOOGLE_CLIENT_ID, // Utilisation des variables d'environnement
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             callbackURL: process.env.GOOGLE_CALLBACK_URL || 'http://localhost:3000/auth/google/callback', // URL de callback avec valeur par défaut
+            scope: ['profile', 'email'], // Demande de permissions
         },
         (accessToken, refreshToken, profile, done) => {
             try {

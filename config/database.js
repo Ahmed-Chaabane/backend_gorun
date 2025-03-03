@@ -19,7 +19,7 @@ const sequelize = new Sequelize(
         host: process.env.DB_HOST,
         port: process.env.DB_PORT,
         dialect: 'postgres',
-        logging: process.env.NODE_ENV !== 'test',
+        logging: false,  // Désactiver les logs SQL
         retry: {
             max: 3,  // Nombre maximum de tentatives de reconnexion
             backoffBase: 100,  // Temps de pause entre les tentatives
