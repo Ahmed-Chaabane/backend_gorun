@@ -9,7 +9,7 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const session = require('express-session');
 const passport = require('./config/passport'); // Configuration de Passport.js
-
+require('./models/associations');
 
 const app = express();
 
@@ -69,6 +69,10 @@ const RecommandationEntrainementRoutes = require('./routes/RecommandationEntrain
 const RecommandationRecuperationRoutes = require('./routes/RecommandationRecuperationRoutes');
 const RecuperationBlessureRoutes = require('./routes/RecuperationBlessureRoutes');
 const UtilisateurRoutes = require('./routes/UtilisateurRoutes');
+const HydrationGoalRoutes = require('./routes/HydrationGoalRoutes');
+const utilisateurHydrationRoutes = require('./routes/UtilisateurHydrationRoutes');
+const NutritionGoalRoutes = require('./routes/NutritionGoalRoutes');
+const sleepGoalRoutes = require('./routes/sleepGoalRoutes');
 
 // 🔹 Routes API
 app.use('/api/activitesportive', ActiviteSportiveRoutes);
@@ -86,6 +90,10 @@ app.use('/api/recommandationentrainement', RecommandationEntrainementRoutes);
 app.use('/api/recommandationrecuperation', RecommandationRecuperationRoutes);
 app.use('/api/recuperationblessure', RecuperationBlessureRoutes);
 app.use('/api/utilisateur', UtilisateurRoutes);
+app.use('/api/hydrationgoal', HydrationGoalRoutes);
+app.use('/api/utilisateurhydration', utilisateurHydrationRoutes);
+app.use('/api/nutritiongoal', NutritionGoalRoutes);
+app.use('/api/sleepgoals', sleepGoalRoutes);
 
 // 🔹 Routes d'authentification Google
 app.get('/auth/google',

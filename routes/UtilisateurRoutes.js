@@ -17,7 +17,6 @@ const router = express.Router();
 router.get('/', utilisateurController.getAllUtilisateurs);
 
 // Ajouter un utilisateur
-// Route pour ajouter un utilisateur
 router.post('/',
     [
         body('nom').notEmpty().withMessage('Le champ nom est requis.'),
@@ -85,6 +84,9 @@ router.get('/email/:email', utilisateurController.getUtilisateurByEmail);
 
 // Obtenir un utilisateur par ID
 router.get('/:id_utilisateur', utilisateurController.getUtilisateurById);
+
+// Obtenir un utilisateur par UID Firebase
+router.get('/firebase_uid/:firebase_uid', utilisateurController.getUtilisateurByFirebaseUid);
 
 // Mettre à jour un utilisateur
 router.put(
@@ -168,8 +170,6 @@ router.put('/update_user_details/:firebase_uid', async (req, res) => {
     }
 });
 
-
-
 // Route pour obtenir les données utilisateur pour l'apprentissage automatique
 exports.getUserDataForML = async (req, res) => {
     try {
@@ -183,9 +183,6 @@ exports.getUserDataForML = async (req, res) => {
         res.status(500).json({ error: 'Erreur serveur' });
     }
 };
-
-
-
 
 // Supprimer un utilisateur
 router.delete('/:id_utilisateur', utilisateurController.deleteUtilisateur);

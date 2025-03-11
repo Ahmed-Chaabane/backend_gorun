@@ -38,12 +38,18 @@ router.get('/', DefiParticipantsController.getAllParticipants);
  *           schema:
  *             type: object
  *             properties:
- *               id_defi:
+ *               id_defi_communautaire:
  *                 type: integer
- *                 description: ID du défi
- *               id_utilisateur:
- *                 type: integer
- *                 description: ID de l'utilisateur
+ *                 description: ID du défi communautaire
+ *               firebase_uid:
+ *                 type: string
+ *                 description: UID Firebase du participant
+ *               progression:
+ *                 type: number
+ *                 description: Progression du participant (par défaut 0)
+ *               statut:
+ *                 type: string
+ *                 description: Statut du participant
  *     responses:
  *       201:
  *         description: Participant ajouté avec succès
@@ -55,26 +61,22 @@ router.get('/', DefiParticipantsController.getAllParticipants);
 router.post(
     '/',
     [
-        body('id_defi')
-            .isNumeric()
-            .withMessage('L\'ID du défi doit être un nombre.'),
-        body('id_utilisateur')
-            .isNumeric()
-            .withMessage('L\'ID de l\'utilisateur doit être un nombre.')
+        body('id_defi_communautaire').isNumeric().withMessage("L'ID du défi communautaire doit être un nombre."),
+        body('firebase_uid').isString().withMessage("L'UID Firebase doit être une chaîne de caractères."),
     ],
     DefiParticipantsController.addParticipant
 );
 
 /**
  * @swagger
- * /api/defiparticipants/{id_defi}:
+ * /api/defiparticipants/{id_defi_communautaire}:
  *   get:
- *     summary: Récupérer les participants d'un défi par ID du défi
+ *     summary: Récupérer les participants d'un défi par ID du défi communautaire
  *     tags: [Participants]
  *     parameters:
- *       - name: id_defi
+ *       - name: id_defi_communautaire
  *         in: path
- *         description: ID du défi
+ *         description: ID du défi communautaire
  *         required: true
  *         schema:
  *           type: integer
@@ -86,21 +88,27 @@ router.post(
  *       500:
  *         description: Erreur serveur
  */
-router.get('/:id_defi', DefiParticipantsController.getParticipantsByIdDefi);
+router.get('/:id_defi_communautaire', DefiParticipantsController.getParticipantsByIdDefi);
 
 /**
  * @swagger
- * /api/defiparticipants/{id_participant}:
+ * /api/defiparticipants/{id_defi_communautaire}/{firebase_uid}:
  *   put:
- *     summary: Mettre à jour un participant par ID
+ *     summary: Mettre à jour un participant
  *     tags: [Participants]
  *     parameters:
- *       - name: id_participant
+ *       - name: id_defi_communautaire
  *         in: path
- *         description: ID du participant
+ *         description: ID du défi communautaire
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: firebase_uid
+ *         in: path
+ *         description: UID de l'utilisateur Firebase
+ *         required: true
+ *         schema:
+ *           type: string
  *     requestBody:
  *       required: true
  *       content:
@@ -108,10 +116,12 @@ router.get('/:id_defi', DefiParticipantsController.getParticipantsByIdDefi);
  *           schema:
  *             type: object
  *             properties:
- *               id_defi:
- *                 type: integer
- *               id_utilisateur:
- *                 type: integer
+ *               progression:
+ *                 type: number
+ *               statut:
+ *                 type: string
+ *               firebase_uid:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Participant mis à jour avec succès
@@ -123,31 +133,34 @@ router.get('/:id_defi', DefiParticipantsController.getParticipantsByIdDefi);
  *         description: Erreur serveur
  */
 router.put(
-    '/:id_participant',
+    '/:id_defi_communautaire/:firebase_uid',
     [
-        body('id_defi')
-            .isNumeric()
-            .withMessage('L\'ID du défi doit être un nombre.'),
-        body('id_utilisateur')
-            .isNumeric()
-            .withMessage('L\'ID de l\'utilisateur doit être un nombre.')
+        body('progression').optional().isNumeric().withMessage("La progression doit être un nombre."),
+        body('statut').optional().isString().withMessage("Le statut doit être une chaîne de caractères."),
+        body('firebase_uid').optional().isString().withMessage("L'UID Firebase doit être une chaîne de caractères."),
     ],
     DefiParticipantsController.updateParticipant
 );
 
 /**
  * @swagger
- * /api/defiparticipants/{id_participant}:
+ * /api/defiparticipants/{id_defi_communautaire}/{firebase_uid}:
  *   delete:
- *     summary: Supprimer un participant par ID
+ *     summary: Supprimer un participant
  *     tags: [Participants]
  *     parameters:
- *       - name: id_participant
+ *       - name: id_defi_communautaire
  *         in: path
- *         description: ID du participant
+ *         description: ID du défi communautaire
  *         required: true
  *         schema:
  *           type: integer
+ *       - name: firebase_uid
+ *         in: path
+ *         description: UID de l'utilisateur Firebase
+ *         required: true
+ *         schema:
+ *           type: string
  *     responses:
  *       200:
  *         description: Participant supprimé avec succès
@@ -156,6 +169,9 @@ router.put(
  *       500:
  *         description: Erreur serveur
  */
-router.delete('/:id_participant', DefiParticipantsController.deleteParticipant);
+router.delete('/:id_defi_communautaire/:firebase_uid', DefiParticipantsController.deleteParticipant);
+
+// Récupérer les défis d'un utilisateur par firebase_uid
+router.get('/user/challenges', DefiParticipantsController.getUserChallenges);
 
 module.exports = router;

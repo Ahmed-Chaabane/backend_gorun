@@ -1,0 +1,15 @@
+{
+  "id_utilisateur": 190,
+  "firebase_uid": "VCbvNoaAk0YPxDjqUcwW9a3UqjR2",
+  "taille": 175,
+  "poids": 82,
+  "age": 26,
+  "date_naissance": null,
+  "selectedSports": ["BaseBall", "Tennis", "Volleyball", "Cricket", "Golf"],
+  "preferences_sportives": ["Yoga", "Strength Training", "Cardio", "Low Impact Exercise"],
+  "lieux_pratique": ["Home", "Outdoor", "Indoor", "At the gym"],
+  "frequence_entrainement": "more than 3 times per week",
+  "health_conditions": ["Cardiac issues", "Diabetes", "Joint pain", "Respiratory problems"],
+  "regime_alimentaire": "Vegan",
+  "objectifs_amelioration": ["Reduce Stress", "Improve Sleep", "Boost Confidence"]
+}

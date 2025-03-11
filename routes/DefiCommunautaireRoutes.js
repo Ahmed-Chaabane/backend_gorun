@@ -1,5 +1,5 @@
 const express = require('express');
-const { body, validationResult } = require('express-validator'); // Validation de données
+const { body } = require('express-validator'); // Validation de données
 const DefiCommunautaireController = require('../controllers/DefiCommunautaireController'); // Importer le contrôleur DefiCommunautaire
 const router = express.Router();
 
@@ -47,8 +47,16 @@ router.get('/', DefiCommunautaireController.getAllDefiCommunautaire);
  *               date_fin:
  *                 type: string
  *                 format: date
- *               objectif:
+ *               recompense:
  *                 type: string
+ *               progression:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 0
+ *                 maximum: 1
+ *               icon:
+ *                 type: string
+ *                 description: Icône associée au défi
  *     responses:
  *       201:
  *         description: Défi ajouté avec succès
@@ -56,48 +64,14 @@ router.get('/', DefiCommunautaireController.getAllDefiCommunautaire);
  *         description: Données invalides
  */
 router.post('/', [
-    body('nom_defi')
-        .isString()
-        .notEmpty()
-        .withMessage('Le nom du défi est obligatoire'),
-    body('description')
-        .isString()
-        .notEmpty()
-        .withMessage('La description est obligatoire'),
-    body('date_debut')
-        .isISO8601()
-        .notEmpty()
-        .withMessage('La date de début est obligatoire et doit être valide'),
-    body('date_fin')
-        .isISO8601()
-        .notEmpty()
-        .withMessage('La date de fin est obligatoire et doit être valide'),
-    body('objectif')
-        .isString()
-        .notEmpty()
-        .withMessage('L\'objectif est obligatoire'),
+    body('nom_defi').isString().notEmpty().withMessage('Le nom du défi est obligatoire'),
+    body('description').isString().notEmpty().withMessage('La description est obligatoire'),
+    body('date_debut').isISO8601().notEmpty().withMessage('La date de début est obligatoire et doit être valide'),
+    body('date_fin').isISO8601().notEmpty().withMessage('La date de fin est obligatoire et doit être valide'),
+    body('recompense').isString().optional().withMessage('La récompense doit être une chaîne de caractères si présente'),
+    body('progression').isFloat({ min: 0, max: 1 }).optional().withMessage('La progression doit être un nombre entre 0 et 1 si présente'),
+    body('icon').isString().notEmpty().withMessage('L\'icône est obligatoire')
 ], DefiCommunautaireController.addDefiCommunautaire);
-
-/**
- * @swagger
- * /api/deficommunautaire/{id_defi_communautaire}:
- *   get:
- *     summary: Récupérer un défi communautaire par son ID
- *     tags: [DefiCommunautaire]
- *     parameters:
- *       - name: id_defi_communautaire
- *         in: path
- *         description: ID du défi communautaire
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Défi communautaire trouvé
- *       404:
- *         description: Défi communautaire non trouvé
- */
-router.get('/:id_defi_communautaire', DefiCommunautaireController.getDefiCommunautaireById);
 
 /**
  * @swagger
@@ -129,8 +103,16 @@ router.get('/:id_defi_communautaire', DefiCommunautaireController.getDefiCommuna
  *               date_fin:
  *                 type: string
  *                 format: date
- *               objectif:
+ *               recompense:
  *                 type: string
+ *               progression:
+ *                 type: number
+ *                 format: float
+ *                 minimum: 0
+ *                 maximum: 1
+ *               icon:
+ *                 type: string
+ *                 description: Icône associée au défi
  *     responses:
  *       200:
  *         description: Défi communautaire mis à jour avec succès
@@ -140,26 +122,13 @@ router.get('/:id_defi_communautaire', DefiCommunautaireController.getDefiCommuna
  *         description: Défi communautaire non trouvé
  */
 router.put('/:id_defi_communautaire', [
-    body('nom_defi')
-        .isString()
-        .notEmpty()
-        .withMessage('Le nom du défi est obligatoire'),
-    body('description')
-        .isString()
-        .notEmpty()
-        .withMessage('La description est obligatoire'),
-    body('date_debut')
-        .isISO8601()
-        .notEmpty()
-        .withMessage('La date de début est obligatoire et doit être valide'),
-    body('date_fin')
-        .isISO8601()
-        .notEmpty()
-        .withMessage('La date de fin est obligatoire et doit être valide'),
-    body('objectif')
-        .isString()
-        .notEmpty()
-        .withMessage('L\'objectif est obligatoire'),
+    body('nom_defi').isString().notEmpty().withMessage('Le nom du défi est obligatoire'),
+    body('description').isString().notEmpty().withMessage('La description est obligatoire'),
+    body('date_debut').isISO8601().notEmpty().withMessage('La date de début est obligatoire et doit être valide'),
+    body('date_fin').isISO8601().notEmpty().withMessage('La date de fin est obligatoire et doit être valide'),
+    body('recompense').isString().optional().withMessage('La récompense doit être une chaîne de caractères si présente'),
+    body('progression').isFloat({ min: 0, max: 1 }).optional().withMessage('La progression doit être un nombre entre 0 et 1 si présente'),
+    body('icon').isString().notEmpty().withMessage('L\'icône est obligatoire')
 ], DefiCommunautaireController.updateDefiCommunautaire);
 
 /**

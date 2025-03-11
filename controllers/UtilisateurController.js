@@ -1,5 +1,6 @@
-const { validationResult } = require('express-validator');
+const {validationResult} = require('express-validator');
 const Utilisateur = require('../models/Utilisateur'); // Importer le modèle Utilisateur
+const axios = require('axios'); // Ajoute cette ligne !
 
 // Obtenir tous les utilisateurs
 exports.getAllUtilisateurs = async (req, res) => {
@@ -8,26 +9,25 @@ exports.getAllUtilisateurs = async (req, res) => {
         res.json(utilisateurs);
     } catch (err) {
         console.error('Erreur serveur:', err); // Afficher l'erreur pour plus de détails
-        res.status(500).json({ error: 'Erreur serveur' });
+        res.status(500).json({error: 'Erreur serveur'});
     }
 };
 
 // Ajouter un utilisateur
 exports.addUtilisateur = async (userData) => {
     try {
-        // Création de l'utilisateur sans mot de passe, en incluant firebase_uid
         const nouvelUtilisateur = await Utilisateur.create({
             nom: userData.nom,
             prenom: userData.prenom,
             email: userData.email,
             telephone: userData.telephone || null,
-            taille: userData.taille, // Ajout de la taille
-            poids: userData.poids,   // Ajout du poids
-            age: userData.age,       // Ajout de l'âge
-            date_naissance: userData.date_naissance, // Ajout de la date de naissance
-            role: userData.role || 'user', // Définir un rôle par défaut
-            statut: 'active', // Par défaut, le statut est 'active'
-            firebase_uid: userData.firebase_uid, // Ajout du firebase_uid
+            taille: userData.taille,
+            poids: userData.poids,
+            age: userData.age,
+            date_naissance: userData.date_naissance,
+            role: userData.role || 'user',
+            statut: 'active',
+            firebase_uid: userData.firebase_uid,
             selectedSports: userData.selectedSports || [],
             preferences_sportives: userData.preferences_sportives || [],
             lieux_pratique: userData.lieux_pratique || [],
@@ -41,66 +41,75 @@ exports.addUtilisateur = async (userData) => {
             throw new Error("Échec de la création de l'utilisateur");
         }
 
-        return {
-            id_utilisateur: nouvelUtilisateur.id_utilisateur,
-            nom: nouvelUtilisateur.nom,
-            prenom: nouvelUtilisateur.prenom,
-            email: nouvelUtilisateur.email,
-            telephone: nouvelUtilisateur.telephone,
-            taille: nouvelUtilisateur.taille,
-            poids: nouvelUtilisateur.poids,
-            age: nouvelUtilisateur.age,
-            date_naissance: nouvelUtilisateur.date_naissance,
-            statut: nouvelUtilisateur.statut,
-            role: nouvelUtilisateur.role, // Ajouter le rôle à la réponse
-            firebase_uid: nouvelUtilisateur.firebase_uid, // Retourner firebase_uid
-            selectedSports: nouvelUtilisateur.selectedSports, // Retourner selectedSports
-            preferences_sportives: nouvelUtilisateur.preferences_sportives,
-            lieux_pratique: nouvelUtilisateur.lieux_pratique,
-            frequence_entrainement: nouvelUtilisateur.frequence_entrainement,
-            health_conditions: nouvelUtilisateur.health_conditions,
-            regime_alimentaire: nouvelUtilisateur.regime_alimentaire,
-            objectifs_amelioration: nouvelUtilisateur.objectifs_amelioration,
-        };
+        // 🔥 **Appel de Flask pour générer la recommandation**
+        axios.post('http://127.0.0.1:5000/generate-recommendation', {
+            firebase_uid: nouvelUtilisateur.firebase_uid
+        }).then(response => {
+            console.log("✅ Recommandation envoyée à Flask :", response.data);
+        }).catch(error => {
+            console.error("❌ Erreur lors de l'appel à Flask :", error.message);
+        });
+
+        return nouvelUtilisateur;
     } catch (error) {
-        console.error("Erreur lors de la création de l'utilisateur :", error);
+        console.error("❌ Erreur lors de la création de l'utilisateur :", error);
         throw error;
     }
 };
 
 // Obtenir un utilisateur par ID
 exports.getUtilisateurById = async (req, res) => {
-    const { id_utilisateur } = req.params;
+    const {id_utilisateur} = req.params;
     try {
         const utilisateur = await Utilisateur.findByPk(id_utilisateur);
+        if (utilisateur) {
+            res.json(utilisateur);
+        } else {
+            res.status(404).json({error: 'Utilisateur non trouvé'});
+        }
+    } catch (err) {
+        res.status(500).json({error: 'Erreur serveur'});
+    }
+};
+
+// Obtenir un utilisateur par firebase_uid
+exports.getUtilisateurByFirebaseUid = async (req, res) => {
+    const { firebase_uid } = req.params; // Utilisez firebase_uid depuis les paramètres de la requête
+    try {
+        // Rechercher l'utilisateur par firebase_uid
+        const utilisateur = await Utilisateur.findOne({
+            where: { firebase_uid } // Clause where pour rechercher par firebase_uid
+        });
+
         if (utilisateur) {
             res.json(utilisateur);
         } else {
             res.status(404).json({ error: 'Utilisateur non trouvé' });
         }
     } catch (err) {
+        console.error("Erreur lors de la récupération de l'utilisateur :", err);
         res.status(500).json({ error: 'Erreur serveur' });
     }
 };
 
 // Obtenir un utilisateur par email
 exports.getUtilisateurByEmail = async (req, res) => {
-    const { email } = req.params;  // Récupère l'email depuis l'URL
+    const {email} = req.params;  // Récupère l'email depuis l'URL
     try {
-        const utilisateur = await Utilisateur.findOne({ where: { email } });
+        const utilisateur = await Utilisateur.findOne({where: {email}});
         if (utilisateur) {
             res.json(utilisateur);
         } else {
-            res.status(404).json({ error: 'Utilisateur non trouvé' });
+            res.status(404).json({error: 'Utilisateur non trouvé'});
         }
     } catch (err) {
-        res.status(500).json({ error: 'Erreur serveur', details: err.message });
+        res.status(500).json({error: 'Erreur serveur', details: err.message});
     }
 };
 
 // Mettre à jour un utilisateur
 exports.updateUtilisateur = async (req, res) => {
-    const { firebase_uid } = req.params;
+    const {firebase_uid} = req.params;
     const {
         nom, prenom, email, taille, poids, age, date_naissance, role, statut, telephone, sexe,
         selectedSports, preferences_sportives, lieux_pratique, frequence_entrainement,
@@ -108,15 +117,15 @@ exports.updateUtilisateur = async (req, res) => {
     } = req.body;
 
     try {
-        const utilisateur = await Utilisateur.findOne({ where: { firebase_uid } });
+        const utilisateur = await Utilisateur.findOne({where: {firebase_uid}});
         if (!utilisateur) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+            return res.status(404).json({error: 'Utilisateur non trouvé'});
         }
 
         if (telephone) {
-            const existingUser = await Utilisateur.findOne({ where: { telephone } });
+            const existingUser = await Utilisateur.findOne({where: {telephone}});
             if (existingUser && existingUser.firebase_uid !== firebase_uid) {
-                return res.status(400).json({ error: 'Ce numéro de téléphone est déjà utilisé' });
+                return res.status(400).json({error: 'Ce numéro de téléphone est déjà utilisé'});
             }
         }
 
@@ -163,22 +172,71 @@ exports.updateUtilisateur = async (req, res) => {
         });
     } catch (err) {
         console.error("Erreur lors de la mise à jour de l'utilisateur :", err);
-        res.status(500).json({ error: 'Erreur lors de la mise à jour', details: err.message });
+        res.status(500).json({error: 'Erreur lors de la mise à jour', details: err.message});
     }
 };
 
 // Supprimer un utilisateur
 exports.deleteUtilisateur = async (req, res) => {
-    const { id_utilisateur } = req.params;
+    const {id_utilisateur} = req.params;
     try {
         const utilisateur = await Utilisateur.findByPk(id_utilisateur);
         if (utilisateur) {
             await utilisateur.destroy();
-            res.json({ message: 'Utilisateur supprimé' });
+            res.json({message: 'Utilisateur supprimé'});
         } else {
-            res.status(404).json({ error: 'Utilisateur non trouvé' });
+            res.status(404).json({error: 'Utilisateur non trouvé'});
         }
     } catch (err) {
-        res.status(500).json({ error: 'Erreur lors de la suppression' });
+        res.status(500).json({error: 'Erreur lors de la suppression'});
+    }
+};
+
+//Recuperer les donnees pour AI
+exports.generateRecommendation = async (req, res) => {
+    try {
+        const {firebase_uid} = req.body;
+
+        // Vérifier si l'utilisateur existe
+        const user = await Utilisateur.findOne({where: {firebase_uid}});
+
+        if (!user) {
+            return res.status(404).json({error: "Utilisateur non trouvé"});
+        }
+
+        // Construire les données complètes
+        const userData = {
+            firebase_uid: user.firebase_uid, // ✅ Toujours là
+            taille: user.taille,
+            poids: user.poids,
+            age: user.age,
+            date_naissance: user.date_naissance,
+            selectedSports: user.selectedSports || [],
+            preferences_sportives: user.preferences_sportives || [],
+            lieux_pratique: user.lieux_pratique || [],
+            frequence_entrainement: typeof user.frequence_entrainement === 'string' ? user.frequence_entrainement : null,
+            health_conditions: user.health_conditions || [],
+            regime_alimentaire: typeof user.regime_alimentaire === 'string' ? user.regime_alimentaire : null,
+            objectifs_amelioration: user.objectifs_amelioration || []
+        };
+
+        // Exécuter le script Python avec les données utilisateur
+        exec(`python3 ai/recommendation.py '${JSON.stringify(userData)}'`, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Erreur : ${error.message}`);
+                return res.status(500).json({error: "Erreur interne du serveur"});
+            }
+            if (stderr) {
+                console.error(`Stderr : ${stderr}`);
+                return res.status(500).json({error: "Erreur dans le script AI"});
+            }
+
+            // Retourner la recommandation avec firebase_uid
+            const recommendation = JSON.parse(stdout);
+            res.json(recommendation);
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({error: "Erreur serveur"});
     }
 };

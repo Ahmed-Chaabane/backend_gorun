@@ -1,5 +1,6 @@
-const {DataTypes} = require('sequelize');
+const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
+const DefiParticipants = require('./DefiParticipants');
 
 // Définition du modèle Utilisateur
 const Utilisateur = sequelize.define('Utilisateur', {
@@ -75,17 +76,17 @@ const Utilisateur = sequelize.define('Utilisateur', {
     selectedSports: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
-        field: 'selectedsports', // Make sure this matches the column name in the database
+        field: 'selectedsports',
     },
     preferences_sportives: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
-        field: 'preferences_sportives', // Make sure this matches the column name in the database
+        field: 'preferences_sportives',
     },
     lieux_pratique: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
-        field: 'lieux_pratique', // Make sure this matches the column name in the database
+        field: 'lieux_pratique',
     },
     frequence_entrainement: {
         type: DataTypes.STRING,
@@ -94,9 +95,8 @@ const Utilisateur = sequelize.define('Utilisateur', {
     health_conditions: {
         type: DataTypes.ARRAY(DataTypes.STRING),
         allowNull: true,
-        field: 'health_conditions', // Make sure this matches the column name in the database
+        field: 'health_conditions',
     },
-
     regime_alimentaire: {
         type: DataTypes.STRING,
         allowNull: true,
@@ -111,6 +111,4 @@ const Utilisateur = sequelize.define('Utilisateur', {
     tableName: 'utilisateur',
     timestamps: false,
 });
-
-
 module.exports = Utilisateur;
