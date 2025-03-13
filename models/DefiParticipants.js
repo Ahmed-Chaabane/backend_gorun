@@ -7,7 +7,7 @@ const DefiParticipants = sequelize.define('DefiParticipants', {
     id_defi: {
         type: DataTypes.INTEGER,
         primaryKey: true,
-        autoIncrement: true, // `autoIncrement` pour la clé primaire
+        autoIncrement: true,
     },
     firebase_uid: {
         type: DataTypes.STRING,
@@ -15,6 +15,14 @@ const DefiParticipants = sequelize.define('DefiParticipants', {
         references: {
             model: 'utilisateur',
             key: 'firebase_uid',
+        },
+    },
+    id_utilisateur: { // Ajout de cette colonne
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+            model: 'utilisateur',
+            key: 'id_utilisateur',
         },
     },
     progression: {
@@ -31,15 +39,16 @@ const DefiParticipants = sequelize.define('DefiParticipants', {
     },
     id_defi_communautaire: {
         type: DataTypes.INTEGER,
-        allowNull: false,  // Doit être non nul car c'est une FK
+        allowNull: false,
         references: {
-            model: 'defi_communautaire', // Table de référence
-            key: 'id_defi_communautaire', // Clé primaire de la table `defi_communautaire`
+            model: 'defi_communautaire',
+            key: 'id_defi_communautaire',
         },
     },
 }, {
     tableName: 'defi_participants',
-    timestamps: false, // Pas de timestamps pour cette table
+    timestamps: false,
 });
+
 
 module.exports = DefiParticipants;

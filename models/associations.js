@@ -3,7 +3,8 @@ const DefiParticipants = require('./DefiParticipants');
 const DefiCommunautaire = require('./DefiCommunautaire');
 const UtilisateurHydration = require('./UtilisateurHydration'); // Importation d'UtilisateurHydration
 const HydrationGoal = require('./HydrationGoal'); // Importation de HydrationGoal
-
+const ObjectifSportif = require('./ObjectifSportif');
+const UtilisateurObjectif = require('./UtilisateurObjectif');
 // Initialiser les associations
 
 // 1. Un utilisateur peut participer à plusieurs défis communautaires
@@ -56,6 +57,47 @@ UtilisateurHydration.belongsTo(HydrationGoal, {
     foreignKey: 'id_hydration_goal',  // Clé étrangère dans UtilisateurHydration
     targetKey: 'id',                  // Clé primaire dans HydrationGoal
     as: 'hydrationGoal',              // Alias pour l'association
+});
+
+// 5. Un utilisateur peut avoir plusieurs objectifs sportifs via la table pivot UtilisateurObjectif
+Utilisateur.belongsToMany(ObjectifSportif, {
+    through: UtilisateurObjectif,
+    foreignKey: 'id_utilisateur', // Clé étrangère dans UtilisateurObjectif qui pointe vers Utilisateur
+    otherKey: 'id_objectif_sportif', // Clé étrangère dans UtilisateurObjectif qui pointe vers ObjectifSportif
+    as: 'objectifsSportifs', // Alias pour l'association
+});
+
+// 6. Un objectif sportif peut être associé à plusieurs utilisateurs via la table pivot UtilisateurObjectif
+ObjectifSportif.belongsToMany(Utilisateur, {
+    through: UtilisateurObjectif,
+    foreignKey: 'id_objectif_sportif', // Clé étrangère dans UtilisateurObjectif qui pointe vers ObjectifSportif
+    otherKey: 'id_utilisateur', // Clé étrangère dans UtilisateurObjectif qui pointe vers Utilisateur
+    as: 'utilisateurs', // Alias pour l'association
+});
+
+// 7. Définir les relations directes avec la table pivot UtilisateurObjectif
+Utilisateur.hasMany(UtilisateurObjectif, {
+    foreignKey: 'id_utilisateur',
+    sourceKey: 'id_utilisateur',
+    as: 'liensObjectifsSportifs', // Alias pour l'association directe avec UtilisateurObjectif
+});
+
+UtilisateurObjectif.belongsTo(Utilisateur, {
+    foreignKey: 'id_utilisateur',
+    targetKey: 'id_utilisateur',
+    as: 'utilisateurLien', // Alias pour l'association inverse
+});
+
+ObjectifSportif.hasMany(UtilisateurObjectif, {
+    foreignKey: 'id_objectif_sportif',
+    sourceKey: 'id_objectif_sportif',
+    as: 'liensUtilisateurs', // Alias pour l'association directe avec UtilisateurObjectif
+});
+
+UtilisateurObjectif.belongsTo(ObjectifSportif, {
+    foreignKey: 'id_objectif_sportif',
+    targetKey: 'id_objectif_sportif',
+    as: 'objectif_sportif', // Alias corrigé
 });
 
 module.exports = {

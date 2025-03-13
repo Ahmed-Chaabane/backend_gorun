@@ -1,6 +1,8 @@
 const express = require('express');
-const { body } = require('express-validator');
-const ObjectifSportifRouiController = require('../controllers/ObjectifSportifController');
+const { body, param } = require('express-validator');
+
+const ObjectifSportifController = require('../controllers/ObjectifSportifController');
+
 const router = express.Router();
 
 /**
@@ -10,6 +12,7 @@ const router = express.Router();
  *   description: Gestion des objectifs sportifs
  */
 
+// Récupérer tous les objectifs sportifs
 /**
  * @swagger
  * /api/objectifsportif:
@@ -18,12 +21,13 @@ const router = express.Router();
  *     tags: [Objectifs Sportifs]
  *     responses:
  *       200:
- *         description: Liste des objectifs sportifs récupérée avec succès
+ *         description: Liste des objectifs récupérée avec succès
  *       500:
  *         description: Erreur serveur
  */
-router.get('/', ObjectifSportifRouiController.getAllObjectifSportif);
+router.get('/', ObjectifSportifController.getAllObjectifSportif);
 
+// Ajouter un objectif sportif
 /**
  * @swagger
  * /api/objectifsportif:
@@ -40,28 +44,15 @@ router.get('/', ObjectifSportifRouiController.getAllObjectifSportif);
  *               description:
  *                 type: string
  *                 description: Description de l'objectif
- *               date_debut:
+ *               name:
  *                 type: string
- *                 format: date
- *                 description: Date de début de l'objectif
- *               date_fin:
+ *                 description: Nom de l'objectif
+ *               icon:
  *                 type: string
- *                 format: date
- *                 description: Date de fin de l'objectif
- *               id_utilisateur:
- *                 type: integer
- *                 description: ID de l'utilisateur lié à l'objectif
- *               etat:
- *                 type: string
- *                 description: |
- *                   État de l'objectif :
- *                   - "en cours"
- *                   - "terminé"
- *                   - "annulé"
- *                   - etc.
+ *                 description: Nom de l'icône associée à l'objectif
  *     responses:
  *       201:
- *         description: Objectif sportif ajouté avec succès
+ *         description: Objectif ajouté avec succès
  *       400:
  *         description: Données invalides
  *       500:
@@ -70,29 +61,14 @@ router.get('/', ObjectifSportifRouiController.getAllObjectifSportif);
 router.post(
     '/',
     [
-        body('description')
-            .isString()
-            .notEmpty()
-            .withMessage('La description est obligatoire'),
-        body('date_debut')
-            .isISO8601()
-            .toDate()
-            .withMessage('La date de début doit être une date valide'),
-        body('date_fin')
-            .isISO8601()
-            .toDate()
-            .withMessage('La date de fin doit être une date valide'),
-        body('id_utilisateur')
-            .isInt()
-            .withMessage('L\'ID de l\'utilisateur doit être un entier valide'),
-        body('etat')
-            .isString()
-            .notEmpty()
-            .withMessage('L\'état est obligatoire'),
+        body('description').notEmpty().withMessage("La description est obligatoire."),
+        body('name').notEmpty().withMessage("Le nom est obligatoire."),
+        body('icon').notEmpty().withMessage("L'icône est obligatoire."),
     ],
-    ObjectifSportifRouiController.addObjectifSportif
+    ObjectifSportifController.addObjectifSportif
 );
 
+// Récupérer un objectif sportif par ID
 /**
  * @swagger
  * /api/objectifsportif/{id_objectif_sportif}:
@@ -108,14 +84,21 @@ router.post(
  *           type: integer
  *     responses:
  *       200:
- *         description: Objectif sportif récupéré avec succès
+ *         description: Objectif récupéré avec succès
  *       404:
- *         description: Objectif sportif non trouvé
+ *         description: Objectif non trouvé
  *       500:
  *         description: Erreur serveur
  */
-router.get('/:id_objectif_sportif', ObjectifSportifRouiController.getObjectifSportifById);
+router.get(
+    '/:id_objectif_sportif',
+    [
+        param('id_objectif_sportif').isInt().withMessage("L'ID doit être un entier."),
+    ],
+    ObjectifSportifController.getObjectifSportifById
+);
 
+// Mettre à jour un objectif sportif
 /**
  * @swagger
  * /api/objectifsportif/{id_objectif_sportif}:
@@ -138,62 +121,35 @@ router.get('/:id_objectif_sportif', ObjectifSportifRouiController.getObjectifSpo
  *             properties:
  *               description:
  *                 type: string
- *                 description: Description de l'objectif
- *               date_debut:
+ *                 description: Nouvelle description de l'objectif
+ *               name:
  *                 type: string
- *                 format: date
- *                 description: Date de début de l'objectif
- *               date_fin:
+ *                 description: Nouveau nom de l'objectif
+ *               icon:
  *                 type: string
- *                 format: date
- *                 description: Date de fin de l'objectif
- *               id_utilisateur:
- *                 type: integer
- *                 description: ID de l'utilisateur lié à l'objectif
- *               etat:
- *                 type: string
- *                 description: |
- *                   État de l'objectif :
- *                   - "en cours"
- *                   - "terminé"
- *                   - "annulé"
- *                   - etc.
+ *                 description: Nouvelle icône associée à l'objectif
  *     responses:
  *       200:
- *         description: Objectif sportif mis à jour avec succès
+ *         description: Objectif mis à jour avec succès
  *       400:
  *         description: Données invalides
  *       404:
- *         description: Objectif sportif non trouvé
+ *         description: Objectif non trouvé
  *       500:
  *         description: Erreur serveur
  */
 router.put(
     '/:id_objectif_sportif',
     [
-        body('description')
-            .isString()
-            .notEmpty()
-            .withMessage('La description est obligatoire'),
-        body('date_debut')
-            .isISO8601()
-            .toDate()
-            .withMessage('La date de début doit être une date valide'),
-        body('date_fin')
-            .isISO8601()
-            .toDate()
-            .withMessage('La date de fin doit être une date valide'),
-        body('id_utilisateur')
-            .isInt()
-            .withMessage('L\'ID de l\'utilisateur doit être un entier valide'),
-        body('etat')
-            .isString()
-            .notEmpty()
-            .withMessage('L\'état est obligatoire'),
+        param('id_objectif_sportif').isInt().withMessage("L'ID doit être un entier."),
+        body('description').optional().notEmpty().withMessage("La description est obligatoire si fournie."),
+        body('name').optional().notEmpty().withMessage("Le nom est obligatoire si fourni."),
+        body('icon').optional().notEmpty().withMessage("L'icône est obligatoire si fournie."),
     ],
-    ObjectifSportifRouiController.updateObjectifSportif
+    ObjectifSportifController.updateObjectifSportif
 );
 
+// Supprimer un objectif sportif
 /**
  * @swagger
  * /api/objectifsportif/{id_objectif_sportif}:
@@ -209,12 +165,18 @@ router.put(
  *           type: integer
  *     responses:
  *       200:
- *         description: Objectif sportif supprimé avec succès
+ *         description: Objectif supprimé avec succès
  *       404:
- *         description: Objectif sportif non trouvé
+ *         description: Objectif non trouvé
  *       500:
  *         description: Erreur serveur
  */
-router.delete('/:id_objectif_sportif', ObjectifSportifRouiController.deleteObjectifSportif);
+router.delete(
+    '/:id_objectif_sportif',
+    [
+        param('id_objectif_sportif').isInt().withMessage("L'ID doit être un entier."),
+    ],
+    ObjectifSportifController.deleteObjectifSportif
+);
 
 module.exports = router;

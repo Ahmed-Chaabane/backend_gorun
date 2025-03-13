@@ -73,6 +73,8 @@ const HydrationGoalRoutes = require('./routes/HydrationGoalRoutes');
 const utilisateurHydrationRoutes = require('./routes/UtilisateurHydrationRoutes');
 const NutritionGoalRoutes = require('./routes/NutritionGoalRoutes');
 const sleepGoalRoutes = require('./routes/sleepGoalRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const UtilisateurObjectifRoutes = require('./routes/UtilisateurObjectifRoutes');
 
 // 🔹 Routes API
 app.use('/api/activitesportive', ActiviteSportiveRoutes);
@@ -94,6 +96,8 @@ app.use('/api/hydrationgoal', HydrationGoalRoutes);
 app.use('/api/utilisateurhydration', utilisateurHydrationRoutes);
 app.use('/api/nutritiongoal', NutritionGoalRoutes);
 app.use('/api/sleepgoals', sleepGoalRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/utilisateur-objectif', UtilisateurObjectifRoutes);
 
 // 🔹 Routes d'authentification Google
 app.get('/auth/google',
