@@ -1,5 +1,6 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const SpotifyStrategy = require('passport-spotify').Strategy;
 
 passport.use(
     new GoogleStrategy(
@@ -22,6 +23,33 @@ passport.use(
             } catch (error) {
                 console.error("Erreur lors de la récupération du profil Google :", error);
                 return done(error, null); // Gestion de l'erreur
+            }
+        }
+    )
+);
+
+// Stratégie Spotify (ajoutée)
+passport.use(
+    new SpotifyStrategy(
+        {
+            clientID: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+            callbackURL: process.env.SPOTIFY_CALLBACK_URL || 'http://localhost:3000/auth/spotify/callback',
+            scope: ['playlist-read-private', 'playlist-read-collaborative'],
+        },
+        (accessToken, refreshToken, profile, done) => {
+            try {
+                console.log('Spotify profile:', profile);
+                const user = {
+                    spotify_id: profile.id,
+                    nom: profile.displayName,
+                    email: profile.email,
+                    spotify_access_token: accessToken, // Stockage du jeton d'accès
+                };
+                return done(null, user);
+            } catch (error) {
+                console.error("Erreur lors de la récupération du profil Spotify :", error);
+                return done(error, null);
             }
         }
     )

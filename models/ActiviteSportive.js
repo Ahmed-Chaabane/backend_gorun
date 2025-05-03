@@ -8,47 +8,47 @@ const ActiviteSportive = sequelize.define('ActiviteSportive', {
         primaryKey: true,
     },
     type_activite: {
-        type: DataTypes.STRING,
-        allowNull: true,
+        type: DataTypes.ENUM('running', 'cycling'), // adapte selon ton ENUM PostgreSQL
+        allowNull: false,
     },
     date_activite: {
-        type: DataTypes.DATE,
+        type: DataTypes.DATEONLY,
         allowNull: false,
         validate: {
-            isBeforeToday(value) {
-                if (new Date(value) > new Date()) {
+            isNotFuture(value) {
+                if (new Date(value) > new Date(Date.now() + 24 * 60 * 60 * 1000)) {
                     throw new Error("La date de l'activité ne peut pas être dans le futur.");
                 }
             },
         },
     },
-    duree: {
-        type: DataTypes.DOUBLE,
+    duree_secondes: {
+        type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
             min: {
-                args: [0],
-                msg: "La durée doit être supérieure à 0.",
+                args: [1],
+                msg: "La durée doit être supérieure à 0 secondes.",
             },
         },
     },
-    distance: {
+    distance_km: {
         type: DataTypes.DOUBLE,
         allowNull: true,
         validate: {
             min: {
                 args: [0],
-                msg: "La distance doit être supérieure ou égale à 0.",
+                msg: "La distance doit être positive.",
             },
         },
     },
     calories_brulees: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.SMALLINT,
         allowNull: true,
         validate: {
             min: {
                 args: [0],
-                msg: "Les calories brûlées doivent être supérieures ou égales à 0.",
+                msg: "Les calories brûlées doivent être positives.",
             },
         },
     },
@@ -56,103 +56,77 @@ const ActiviteSportive = sequelize.define('ActiviteSportive', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'Utilisateur',
+            model: 'utilisateur',
             key: 'id_utilisateur',
         },
         onDelete: 'CASCADE',
     },
-    id_objectif_sportif: {
-        type: DataTypes.INTEGER,
+    donnees_specifiques: {
+        type: DataTypes.JSONB,
         allowNull: true,
-        references: {
-            model: 'ObjectifSportif',
-            key: 'id_objectif_sportif',
-        },
-        onDelete: 'SET NULL',
     },
-    latitude_debut: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-        validate: {
-            min: {
-                args: [-90],
-                msg: "La latitude doit être supérieure ou égale à -90.",
-            },
-            max: {
-                args: [90],
-                msg: "La latitude doit être inférieure ou égale à 90.",
-            },
-        },
-    },
-    longitude_debut: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-        validate: {
-            min: {
-                args: [-180],
-                msg: "La longitude doit être supérieure ou égale à -180.",
-            },
-            max: {
-                args: [180],
-                msg: "La longitude doit être inférieure ou égale à 180.",
-            },
-        },
-    },
-    latitude_fin: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-        validate: {
-            min: {
-                args: [-90],
-                msg: "La latitude doit être supérieure ou égale à -90.",
-            },
-            max: {
-                args: [90],
-                msg: "La latitude doit être inférieure ou égale à 90.",
-            },
-        },
-    },
-    longitude_fin: {
-        type: DataTypes.DOUBLE,
-        allowNull: true,
-        validate: {
-            min: {
-                args: [-180],
-                msg: "La longitude doit être supérieure ou égale à -180.",
-            },
-            max: {
-                args: [180],
-                msg: "La longitude doit être inférieure ou égale à 180.",
-            },
-        },
-    },
-    details_raw:{
-        type: DataTypes.TEXT,
-        allowNull: true,
-        validate: {
-            isJSON: function(value) {
-                try {
-                    JSON.parse(value);
-                } catch (error) {
-                    throw new Error("Les détails de l'activité sportive doivent être au format JSON.");
-                }
-            }
-        }
-    },
-    date_heure:{
+    date_heure: {
         type: DataTypes.DATE,
         allowNull: false,
+    },
+    frequence_cardiaque_moyenne: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
         validate: {
-            isBeforeToday(value) {
-                if (new Date(value) > new Date()) {
-                    throw new Error("La date de l'activité ne peut pas être dans le futur.");
-                }
+            min: {
+                args: [1],
+                msg: "La fréquence cardiaque doit être positive.",
             },
+        },
+    },
+    vitesse_moyenne_kmh: {
+        type: DataTypes.DECIMAL(4, 1),
+        allowNull: true,
+        validate: {
+            min: {
+                args: [0],
+                msg: "La vitesse moyenne doit être positive.",
+            },
+        },
+    },
+    altitude_max: {
+        type: DataTypes.DECIMAL(6, 2),
+        allowNull: true,
+    },
+    denivele_positif: {
+        type: DataTypes.DECIMAL(6, 2),
+        allowNull: true,
+        validate: {
+            min: {
+                args: [0],
+                msg: "Le dénivelé positif doit être positif.",
+            },
+        },
+    },
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+    },
+    parcours: {
+        type: DataTypes.GEOMETRY('LINESTRING', 4326),
+        allowNull: true,
+    },
+    firebase_uid: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        references: {
+            model: 'utilisateur',
+            key: 'firebase_uid',
         },
     },
 }, {
     tableName: 'activite_sportive',
     timestamps: false,
+    underscored: true,
 });
 
 module.exports = ActiviteSportive;

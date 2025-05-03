@@ -1,62 +1,15 @@
 const express = require('express');
-const { body, validationResult } = require('express-validator'); // Validation de données
-const ActiviteSportiveController = require('../controllers/ActiviteSportiveController'); // Importer le contrôleur ActiviteSportive
+const { body, validationResult } = require('express-validator');
+const ActiviteSportiveController = require('../controllers/ActiviteSportiveController');
 const router = express.Router();
 
 /**
- * @swagger
- * tags:
- *   name: ActiviteSportive
- *   description: API pour gérer les activités sportives
- */
-
-/**
- * @swagger
- * /api/activitesportive:
- *   get:
- *     summary: Récupérer toutes les activités sportives
- *     tags: [ActiviteSportive]
- *     responses:
- *       200:
- *         description: Liste des activités sportives
- *       400:
- *         description: Erreur serveur
+ * Récupérer toutes les activités sportives
  */
 router.get('/', ActiviteSportiveController.getAllActivitesSportives);
 
 /**
- * @swagger
- * /api/activitesportive:
- *   post:
- *     summary: Ajouter une nouvelle activité sportive
- *     tags: [ActiviteSportive]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               type_activite:
- *                 type: string
- *               date_activite:
- *                 type: string
- *                 format: date
- *               duree:
- *                 type: number
- *               distance:
- *                 type: number
- *               calories_brulees:
- *                 type: number
- *               id_utilisateur:
- *                 type: number
- *               id_objectif_sportif:
- *                 type: number
- *     responses:
- *       201:
- *         description: Activité sportive ajoutée avec succès
- *       400:
- *         description: Données invalides
+ * Ajouter une nouvelle activité sportive
  */
 router.post('/', [
     body('type_activite')
@@ -68,84 +21,52 @@ router.post('/', [
         .withMessage('La date de l\'activité doit être une date valide'),
     body('duree')
         .isNumeric()
-        .withMessage('La durée de l\'activité doit être un nombre'),
+        .withMessage('La durée doit être un nombre'),
     body('distance')
         .isNumeric()
-        .withMessage('La distance parcourue doit être un nombre'),
+        .withMessage('La distance doit être un nombre'),
     body('calories_brulees')
         .isNumeric()
-        .withMessage('Le nombre de calories brûlées doit être un nombre'),
+        .withMessage('Les calories brûlées doivent être un nombre'),
     body('id_utilisateur')
         .isNumeric()
-        .withMessage('L\'ID de l\'utilisateur doit être un nombre'),
+        .withMessage('L\'ID utilisateur doit être un nombre'),
     body('id_objectif_sportif')
         .isNumeric()
         .withMessage('L\'ID de l\'objectif sportif doit être un nombre'),
+    body('latitude_debut')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Latitude de début invalide'),
+    body('longitude_debut')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Longitude de début invalide'),
+    body('latitude_fin')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Latitude de fin invalide'),
+    body('longitude_fin')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Longitude de fin invalide'),
+    body('details_raw')
+        .optional({ nullable: true })
+        .isString()
+        .withMessage('Les détails doivent être une chaîne de caractères'),
+    body('date_heure')
+        .optional({ nullable: true })
+        .isISO8601()
+        .withMessage('Date et heure invalide')
 ], ActiviteSportiveController.addActiviteSportive);
 
 /**
- * @swagger
- * /api/activitesportive/{id_activite_sportive}:
- *   get:
- *     summary: Récupérer une activité sportive par son ID
- *     tags: [ActiviteSportive]
- *     parameters:
- *       - name: id_activite_sportive
- *         in: path
- *         description: ID de l'activité sportive
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Activité sportive trouvée
- *       404:
- *         description: Activité sportive non trouvée
+ * Récupérer une activité sportive par ID
  */
 router.get('/:id_activite_sportive', ActiviteSportiveController.getActiviteSportiveById);
 
 /**
- * @swagger
- * /api/activitesportive/{id_activite_sportive}:
- *   put:
- *     summary: Mettre à jour une activité sportive
- *     tags: [ActiviteSportive]
- *     parameters:
- *       - name: id_activite_sportive
- *         in: path
- *         description: ID de l'activité sportive à mettre à jour
- *         required: true
- *         schema:
- *           type: integer
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               type_activite:
- *                 type: string
- *               date_activite:
- *                 type: string
- *                 format: date
- *               duree:
- *                 type: number
- *               distance:
- *                 type: number
- *               calories_brulees:
- *                 type: number
- *               id_utilisateur:
- *                 type: number
- *               id_objectif_sportif:
- *                 type: number
- *     responses:
- *       200:
- *         description: Activité sportive mise à jour avec succès
- *       400:
- *         description: Données invalides
- *       404:
- *         description: Activité sportive non trouvée
+ * Mettre à jour une activité sportive
  */
 router.put('/:id_activite_sportive', [
     body('type_activite')
@@ -157,19 +78,51 @@ router.put('/:id_activite_sportive', [
         .withMessage('La date de l\'activité doit être une date valide'),
     body('duree')
         .isNumeric()
-        .withMessage('La durée de l\'activité doit être un nombre'),
+        .withMessage('La durée doit être un nombre'),
     body('distance')
         .isNumeric()
-        .withMessage('La distance parcourue doit être un nombre'),
+        .withMessage('La distance doit être un nombre'),
     body('calories_brulees')
         .isNumeric()
-        .withMessage('Le nombre de calories brûlées doit être un nombre'),
+        .withMessage('Les calories brûlées doivent être un nombre'),
     body('id_utilisateur')
         .isNumeric()
-        .withMessage('L\'ID de l\'utilisateur doit être un nombre'),
+        .withMessage('L\'ID utilisateur doit être un nombre'),
     body('id_objectif_sportif')
         .isNumeric()
         .withMessage('L\'ID de l\'objectif sportif doit être un nombre'),
+    body('latitude_debut')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Latitude de début invalide'),
+    body('longitude_debut')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Longitude de début invalide'),
+    body('latitude_fin')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Latitude de fin invalide'),
+    body('longitude_fin')
+        .optional({ nullable: true })
+        .isFloat()
+        .withMessage('Longitude de fin invalide'),
+    body('details_raw')
+        .optional({ nullable: true })
+        .isString()
+        .withMessage('Les détails doivent être une chaîne de caractères'),
+    body('date_heure')
+        .optional({ nullable: true })
+        .isISO8601()
+        .withMessage('Date et heure invalide')
 ], ActiviteSportiveController.updateActiviteSportive);
+
+/**
+ * Supprimer une activité sportive
+ */
+router.delete('/:id_activite_sportive', ActiviteSportiveController.deleteActivitesSportive);
+
+// Dans votre fichier de routes (ActiviteSportiveRoutes.js)
+router.get('/user/activities', ActiviteSportiveController.getUserActivities); // 🔹 Récupérer les activités par firebase_uid
 
 module.exports = router;
